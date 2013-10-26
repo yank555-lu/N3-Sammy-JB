@@ -1,21 +1,17 @@
 #!/bin/sh
 export KERNELDIR=`readlink -f .`
-export RAMFS_SOURCE=`readlink -f $KERNELDIR/ramdisk`
-export USE_SEC_FIPS_MODE=true
+export RAMFS_SOURCE=`readlink -f $KERNELDIR/ramfs`
+#export USE_SEC_FIPS_MODE=true
 
 if [ "${1}" != "" ];then
   export KERNELDIR=`readlink -f ${1}`
 fi
 
-RAMFS_TMP="/home/yank555-lu/temp/tmp/ramfs-source-sgs3"
+RAMFS_TMP="/home/yank555-lu/temp/tmp/ramfs-source-sgn3"
 
 . $KERNELDIR/.config
 
-echo "...............................................................Compiling modules.............................................................."
-cd $KERNELDIR/
-make -j6 || exit 1
-
-echo "................................................................Updating ramdisk.............................................................."
+echo ".............................................................Building new ramdisk............................................................."
 #remove previous ramfs files
 rm -rf $RAMFS_TMP
 rm -rf $RAMFS_TMP.cpio
@@ -29,22 +25,28 @@ find $RAMFS_TMP -name EMPTY_DIRECTORY -exec rm -rf {} \;
 rm -rf $RAMFS_TMP/tmp/*
 #remove mercurial repository
 rm -rf $RAMFS_TMP/.hg
-#copy modules into ramfs
-mkdir -p $RAMFS_TMP/lib/modules
-find -name '*.ko' -exec cp -av {} $RAMFS_TMP/lib/modules/ \;
-${CROSS_COMPILE}strip --strip-unneeded $RAMFS_TMP/lib/modules/*
-
-echo ".............................................................Building new ramdisk............................................................."
 cd $RAMFS_TMP
 find | fakeroot cpio -H newc -o > $RAMFS_TMP.cpio 2>/dev/null
 ls -lh $RAMFS_TMP.cpio
 gzip -9 $RAMFS_TMP.cpio
 
 echo "...............................................................Compiling kernel..............................................................."
+#remove previous out files
+rm $KERNELDIR/dt.img
+rm $KERNELDIR/boot.img
+rm $KERNELDIR/*.ko
+#compile kernel
 cd $KERNELDIR
-make -j6 zImage || exit 1
+make -j6 || exit 1
+
+echo "..............................................................Making new dt image............................................................."
+./buildtools/dtbtool -o $KERNELDIR/dt.img -s 2048 -p $KERNELDIR/scripts/dtc/ $KERNELDIR/arch/arm/boot/
 
 echo ".............................................................Making new boot image............................................................"
-./mkbootimg --kernel $KERNELDIR/arch/arm/boot/zImage --ramdisk $RAMFS_TMP.cpio.gz --board smdk4x12 --base 0x10000000 --pagesize 2048 --ramdiskaddr 0x11000000 -o $KERNELDIR/boot.img
+./buildtools/dt-mkbootimg --base 0x0 --kernel $KERNELDIR/arch/arm/boot/zImage --ramdisk_offset 0x2000000 --tags_offset 0x1e00000 --pagesize 2048 --cmdline 'console=null androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x3F' --ramdisk $RAMFS_TMP.cpio.gz --dt $KERNELDIR/dt.img -o $KERNELDIR/boot.img
 
 echo ".....................................................................done....................................................................."
+find . -name "boot.img"
+find . -name "*.ko" -exec mv {} . \;
+${CROSS_COMPILE}strip --strip-unneeded ./*.ko
+find . -name "*.ko"
