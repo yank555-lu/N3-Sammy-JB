@@ -18,6 +18,7 @@ user=_app seinfo=platform domain=platform_app type=platform_app_data_file
 user=_app seinfo=platform name=com.sec.knox.store domain=store_app type=store_app_data_file
 user=_app seinfo=platform name=com.android.defcontainer domain=bridged_platform_app type=platform_app_data_file
 user=_app seinfo=platform name=com.sec.android.app.controlpanel domain=bridged_platform_app type=platform_app_data_file
+user=_app seinfo=platform name=com.sec.minimode.taskcloser domain=bridged_platform_app type=platform_app_data_file
 user=_app seinfo=shared domain=shared_app type=platform_app_data_file
 user=_app seinfo=media domain=media_app type=platform_app_data_file
 user=_app seinfo=release domain=release_app type=platform_app_data_file
@@ -35,4 +36,9 @@ user=_app seinfo=samsung name=com.sec.android.app.samsungapps domain=samsung_app
 user=_app seinfo=untrusted name=com.vlingo.midas domain=samsung_app type=app_data_file
 user=_app seinfo=untrusted name=tv.peel.samsung.app domain=samsung_app type=app_data_file
 user=_app seinfo=untrusted name=tv.peel.samsung.widget domain=samsung_app type=app_data_file
+user=_app seinfo=untrusted name=com.rageconsulting.android.lightflow domain=filtered_untrusted_app type=app_data_file
+user=_app seinfo=untrusted name=com.rageconsulting.android.lightflowlite domain=filtered_untrusted_app type=app_data_file
+user=_app seinfo=untrusted name=rubberbigpepper.lgCamera domain=filtered_untrusted_app type=app_data_file
 user=_app seinfo=vmware domain=vmware_app type=app_data_file
+user=_app seinfo=iwlanservice domain=carrier_app type=app_data_file
+user=_app seinfo=tbmon domain=carrier_app type=app_data_file
